@@ -419,7 +419,7 @@ $full_name = $_SESSION['full_name'];
                                 html += '<td>' + book.available_quantity + '</td>';
 
                                 if (book.available_quantity > 0) {
-                                    html += '<td><button class="btn btn-sm btn-primary borrow-btn" data-id="' + book.id + '">Borrow</button></td>';
+                                    html += '<td><button class="btn btn-sm btn-primary borrow-btn" data-id="' + book.id + '"><span class="btn-text">Borrow</span> <span class="spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span></button></td>';
                                 } else {
                                     html += '<td><button class="btn btn-sm btn-secondary" disabled>Not Available</button></td>';
                                 }
@@ -546,6 +546,12 @@ $full_name = $_SESSION['full_name'];
 
         // Borrow book function
         function borrowBook(bookId) {
+            const button = $(`.borrow-btn[data-id="${bookId}"]`);
+
+            // Show spinner and change text
+            button.find('.btn-text').text('Processing');
+            button.find('.spinner').show();
+            button.prop('disabled', true);
             $.ajax({
                 url: 'borrow_book.php',
                 type: 'POST',

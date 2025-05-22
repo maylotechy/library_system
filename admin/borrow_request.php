@@ -109,14 +109,14 @@ $pendingRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <td><?= htmlspecialchars($request['book_title']); ?></td>
                                             <td><?= htmlspecialchars($request['request_date']); ?></td>
                                             <td>
-                                                <form method="POST" action="borrow_request.php" style="display: inline-block;">
+                                                <form method="POST" action="borrow_request.php" style="display: inline-block;" class="request-form">
                                                     <input type="hidden" name="request_id" value="<?= $request['id']; ?>">
                                                     <input type="hidden" name="action" value="approve">
                                                     <button type="submit" name="process_request" class="btn btn-xs btn-success">
                                                         <i class="fa fa-check"></i> Approve
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="borrow_request.php" style="display: inline-block;">
+                                                <form method="POST" action="borrow_request.php" style="display: inline-block;" class="request-form">
                                                     <input type="hidden" name="request_id" value="<?= $request['id']; ?>">
                                                     <input type="hidden" name="action" value="reject">
                                                     <button type="submit" name="process_request" class="btn btn-xs btn-danger">
@@ -167,6 +167,39 @@ $pendingRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
         toastr.<?= $_SESSION['toastr']['type']; ?>('<?= $_SESSION['toastr']['message']; ?>');
         <?php unset($_SESSION['toastr']); ?>
         <?php endif; ?>
+    </script>
+    <script>
+            $(document).ready(function() {
+            $('.request-form').on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const button = form.find('button[type="submit"]');
+                const originalHtml = button.html();
+
+                // Update button to show processing state
+                button.html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                button.prop('disabled', true);
+
+                // Add process_request parameter to the form data
+                const formData = form.serialize() + '&process_request=1';
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        toastr.success('Processed successfully');
+                        window.location.reload();
+                    },
+                    error: function() {
+                        toastr.error('Failed to process request. Please try again.');
+                        button.html(originalHtml);
+                        button.prop('disabled', false);
+                    }
+                });
+            });
+        });
+
     </script>
 </div>
 </body>
